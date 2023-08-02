@@ -19,10 +19,9 @@ str_echo(WOLFSSL* ssl)
 	char		buf[MAXLINE];
 
 
-	while ( (n = wolfSSL_read(ssl, buf, MAXLINE)) > 0) {
-		if(wolfSSL_write(ssl, buf, n) != n) {
-			err_sys("wolfSSL_write failed");
-		}
+	if ( (n = wolfSSL_read(ssl, buf, MAXLINE)) > 0) {
+		buf[n] = '\0';
+		printf("Mensagem recebida: %s \n", buf);
 	}
 
 	if( n < 0 )
@@ -30,6 +29,8 @@ str_echo(WOLFSSL* ssl)
 
 	else if( n == 0 )
 		printf("The peer has closed the connection.\n");
+
+	
 }
 
 int
@@ -61,7 +62,7 @@ main(int argc, char **argv)
 	}
 
 	/* Load CA certificates into WOLFSSL_CTX */
-	if (wolfSSL_CTX_load_verify_locations(ctx,"/home/ravena/ssl-tutorial-2.3/finished_src/certs/ca-cert.pem",0) !=
+	if (wolfSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) !=
             SSL_SUCCESS) {
 		fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
                 "please check the file.\n");
@@ -71,7 +72,7 @@ main(int argc, char **argv)
 
 
 	/* Load server certificate into WOLFSSL_CTX */
-	if (wolfSSL_CTX_use_certificate_file(ctx,"/home/ravena/ssl-tutorial-2.3/finished_src/certs/server-cert.pem",
+	if (wolfSSL_CTX_use_certificate_file(ctx,"../certs/ca-cert.pem",
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 	   fprintf(stderr, "Error loading ../certs/server-cert.pem, "
                "please check the file.\n");
@@ -79,7 +80,7 @@ main(int argc, char **argv)
 	}
 
 	/* Load server key into WOLFSSL_CTX */
-	if (wolfSSL_CTX_use_PrivateKey_file(ctx,"/home/ravena/ssl-tutorial-2.3/finished_src/certs/server-key.pem",
+	if (wolfSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 	   fprintf(stderr, "Error loading ../certs/server-key.pem, "
                "please check the file.\n");
@@ -107,7 +108,7 @@ main(int argc, char **argv)
 	{
 		clilen = sizeof(cliaddr);
 		WOLFSSL* ssl;
-
+		printf("Antes do accept.\n");
 		if ( (connfd = accept(listenfd, (SA *) &cliaddr, &clilen)) < 0 )
 		{
 			if (errno == EINTR)
@@ -143,4 +144,3 @@ main(int argc, char **argv)
 
     exit(EXIT_SUCCESS);
 }
-
